@@ -1,0 +1,16 @@
+{
+  "restaurant": "Sample Grill House (demo data)",
+  "currency": "Rs",
+  "items": [
+    {"name": "Zinger Burger", "price": 750, "prep_min": 10, "spice": 2, "tags": ["halal", "chicken"], "allergens": ["gluten", "egg"], "calories": 680},
+    {"name": "Mild Chicken Burger", "price": 690, "prep_min": 10, "spice": 0, "tags": ["halal", "chicken"], "allergens": ["gluten", "egg"], "calories": 610},
+    {"name": "Beef Steak Sandwich", "price": 990, "prep_min": 15, "spice": 1, "tags": ["halal", "beef"], "allergens": ["gluten"], "calories": 720},
+    {"name": "Grilled Chicken Salad Bowl", "price": 820, "prep_min": 8, "spice": 0, "tags": ["halal", "chicken", "healthy"], "allergens": [], "calories": 380},
+    {"name": "Veggie Wrap", "price": 560, "prep_min": 8, "spice": 1, "tags": ["halal", "vegetarian", "healthy"], "allergens": ["gluten"], "calories": 450},
+    {"name": "Paneer Tikka Roll", "price": 620, "prep_min": 10, "spice": 2, "tags": ["halal", "vegetarian"], "allergens": ["gluten", "dairy"], "calories": 540},
+    {"name": "Chicken Tikka Platter", "price": 1150, "prep_min": 20, "spice": 2, "tags": ["halal", "chicken"], "allergens": ["dairy"], "calories": 760},
+    {"name": "Loaded Fries", "price": 480, "prep_min": 7, "spice": 1, "tags": ["halal", "vegetarian", "shareable"], "allergens": ["dairy"], "calories": 620},
+    {"name": "Nutty Brownie", "price": 350, "prep_min": 3, "spice": 0, "tags": ["halal", "vegetarian", "dessert"], "allergens": ["nuts", "gluten", "egg", "dairy"], "calories": 430},
+    {"name": "Cold Coffee", "price": 380, "prep_min": 4, "spice": 0, "tags": ["halal", "vegetarian", "drink"], "allergens": ["dairy"], "calories": 260}
+  ]
+}
