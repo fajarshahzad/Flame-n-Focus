@@ -12,6 +12,11 @@ Built at Hacktoberfest Hack Day Lahore. Open source, Apache-2.0.
 - **Nutrition:** food photo, text or voice, then estimated items, calories and macros, with warnings for your allergies and conditions. Log meals and track 7-day progress against your goal.
 - **Meal plans:** 1, 3 or 7 days based on your profile and an optional total budget (e.g. Rs 3000 for 3 days), with a price on every meal, a running total against the budget, alternatives and one-tap meal replacement.
 - **Ask Flame:** a chat assistant for food and nutrition questions. **Recipes:** ideas from the ingredients you have.
+- **Landing page** in the style of the Figma design, with sign-in and sign-up.
+- **Menu discovery:** categories (breakfast, lunch, dinner, snacks, vegetarian, high protein), favourites, search, allergen filters, dish detail with AI-generated ingredients and swaps, and add-to-plan or log-meal actions. Dishes that conflict with your allergies or dislikes are flagged.
+- **Meal plans** also offer a servings control and a shopping list.
+- **Focus tools:** focus timer, hydration reminders, meal-prep reminders and a daily summary (reminders run while the app is open in a browser tab).
+- **Profile** includes disliked ingredients and a per-meal budget.
 - **Voice input** (Web Speech API) on every text field, including Urdu.
 
 ## Models
@@ -29,6 +34,8 @@ cp .env.example .env        # add your Gemini key
 uvicorn server:app --port 8000
 ```
 Open http://localhost:8000 and create an account.
+
+UI note: the visual design (colours, typography, images) comes from the exported FoodZero / Flame & Fuel Figma frames. Images in `web/img/` are cropped from that export.
 
 ## Layout
 - `web/`: the frontend (plain HTML, CSS and JS, no build step)

@@ -17,6 +17,7 @@ def load(row) -> dict:
     d = dict(row)
     d["diet"] = json.loads(d.get("diet") or "[]")
     d["allergies"] = json.loads(d.get("allergies") or "[]")
+    d["dislikes"] = json.loads(d.get("dislikes") or "[]")
     return d
 
 
@@ -37,6 +38,9 @@ def constraints_from_profile(p: dict) -> dict:
             c["avoid_allergens"] += matched
         elif a:
             c["avoid_words"].append(a)
+    c["avoid_words"] += [w.lower().strip() for w in p.get("dislikes", []) if w.strip()]
+    if p.get("budget"):
+        c["budget"] = p["budget"]  # per-meal budget
     if p.get("goal") == "lose" and p.get("kcal_target"):
         c["max_calories"] = round(p["kcal_target"] / 3 * 1.15)
     return c

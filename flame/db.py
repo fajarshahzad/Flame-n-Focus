@@ -42,6 +42,10 @@ CREATE TABLE IF NOT EXISTS food_logs(
   id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   day TEXT NOT NULL, name TEXT NOT NULL, kcal INTEGER DEFAULT 0, protein INTEGER DEFAULT 0,
   carbs INTEGER DEFAULT 0, fat INTEGER DEFAULT 0, source TEXT DEFAULT 'manual', created INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS favorites(
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  item_id INTEGER NOT NULL REFERENCES menu_items(id) ON DELETE CASCADE,
+  PRIMARY KEY(user_id, item_id));
 CREATE TABLE IF NOT EXISTS meal_plans(
   user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   plan TEXT NOT NULL, updated INTEGER NOT NULL);
@@ -78,6 +82,10 @@ def estimate_macros(kcal: int) -> tuple[int, int, int]:
 def init():
     with db() as c:
         c.executescript(SCHEMA)
+        have = {r[1] for r in c.execute("PRAGMA table_info(profiles)")}
+        for col, ddl in (("dislikes", "TEXT DEFAULT '[]'"), ("budget", "INTEGER")):
+            if col not in have:  # lightweight migration for databases created before these fields existed
+                c.execute(f"ALTER TABLE profiles ADD COLUMN {col} {ddl}")
         if c.execute("SELECT COUNT(*) FROM menu_items").fetchone()[0] == 0:
             sample = json.loads((ROOT / "data" / "sample_menu.json").read_text(encoding="utf-8"))
             for it in sample["items"]:

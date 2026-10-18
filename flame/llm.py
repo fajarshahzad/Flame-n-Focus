@@ -208,7 +208,8 @@ def analyze_food(text: str = "", image: tuple[bytes, str] | None = None) -> dict
         "Identify the food in this meal and estimate portion and nutrition. "
         f"User description: {text or '(none)'}. "
         'Return ONLY JSON: {"items": [{"name": str, "portion": str, "kcal": int, "protein_g": int, '
-        '"carbs_g": int, "fat_g": int}], "confidence": "low|medium|high", "notes": str}. '
+        '"carbs_g": int, "fat_g": int}], "confidence": "low|medium|high", "notes": str, '
+        '"healthier_alternatives": [str] (2-3 lighter or more balanced swaps)}. '
         "Estimates only; say so in notes if the photo is unclear."
     )
     d = _extract_json(_generate(prompt, image))
@@ -305,3 +306,21 @@ def recipes(ingredients: str, diet: str, max_kcal: int | None) -> list[dict]:
     )
     out = _extract_json(_generate(prompt))
     return out if isinstance(out, list) else out.get("recipes", [])
+
+
+_DISH_INFO: dict[str, dict] = {}
+
+
+def dish_info(name: str, description: str = "") -> dict:
+    """Ingredients, swaps and a short tip for one dish (cached per dish name)."""
+    key = name.strip().lower()
+    if key in _DISH_INFO:
+        return _DISH_INFO[key]
+    prompt = (
+        f"Dish: {name}. {description}. Return ONLY JSON: "
+        '{"ingredients": [str] (6-10 typical ingredients), "alternatives": [str] (2-3 lighter or allergen-friendly swaps), '
+        '"tip": str (one short serving or nutrition tip)}'
+    )
+    out = _extract_json(_generate(prompt))
+    _DISH_INFO[key] = out
+    return out

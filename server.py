@@ -117,6 +117,8 @@ class Profile(BaseModel):
     conditions: str = Field("", max_length=500)
     goal: str = "maintain"
     kcal_target: int = Field(2000, ge=800, le=6000)
+    dislikes: list[str] = []
+    budget: int | None = Field(None, ge=0, le=100000)  # per-meal budget, Rs
 
 
 def get_profile(uid: int) -> dict:
@@ -137,10 +139,11 @@ def write_profile(b: Profile, user: dict = User):
     clean = lambda xs: [x.strip().lower()[:40] for x in xs if x.strip()][:20]
     with db() as c:
         c.execute(
-            "UPDATE profiles SET age=?,height_cm=?,weight_kg=?,activity=?,diet=?,allergies=?,conditions=?,goal=?,kcal_target=? "
+            "UPDATE profiles SET age=?,height_cm=?,weight_kg=?,activity=?,diet=?,allergies=?,conditions=?,goal=?,kcal_target=?,"
+            "dislikes=?,budget=? "
             "WHERE user_id=?",
             (b.age, b.height_cm, b.weight_kg, b.activity, json.dumps(clean(b.diet)), json.dumps(clean(b.allergies)),
-             b.conditions.strip(), b.goal, b.kcal_target, user["id"]),
+             b.conditions.strip(), b.goal, b.kcal_target, json.dumps(clean(b.dislikes)), b.budget, user["id"]),
         )
     return get_profile(user["id"])
 
@@ -722,6 +725,77 @@ def recipes(b: RecipeReq, user: dict = User):
         return {"recipes": llm.recipes(b.ingredients, ", ".join(p["diet"]), b.max_kcal)}
     except Exception as e:
         raise _llm_fail(e)
+
+
+# ------------------------------------------------------------------ favorites, dish info, add-to-plan
+
+@app.get("/api/favorites")
+def list_favorites(user: dict = User):
+    with db() as c:
+        rows = c.execute("SELECT item_id FROM favorites WHERE user_id=?", (user["id"],)).fetchall()
+    return {"ids": [r["item_id"] for r in rows]}
+
+
+@app.post("/api/favorites/{iid}")
+def add_favorite(iid: int, user: dict = User):
+    with db() as c:
+        if not c.execute("SELECT 1 FROM menu_items WHERE id=? AND status='approved'", (iid,)).fetchone():
+            raise HTTPException(404, "Dish not found.")
+        c.execute("INSERT OR IGNORE INTO favorites(user_id,item_id) VALUES(?,?)", (user["id"], iid))
+    return {"ok": True}
+
+
+@app.delete("/api/favorites/{iid}")
+def remove_favorite(iid: int, user: dict = User):
+    with db() as c:
+        c.execute("DELETE FROM favorites WHERE user_id=? AND item_id=?", (user["id"], iid))
+    return {"ok": True}
+
+
+class DishInfoReq(BaseModel):
+    id: int
+
+
+@app.post("/api/dish-info")
+def dish_info(b: DishInfoReq, user: dict = User):
+    """Ingredients and swaps for a menu dish (model-generated, so labelled as estimates in the UI)."""
+    with db() as c:
+        row = c.execute("SELECT name,description FROM menu_items WHERE id=? AND status='approved'", (b.id,)).fetchone()
+    if not row:
+        raise HTTPException(404, "Dish not found.")
+    _need_model()
+    try:
+        return llm.dish_info(row["name"], row["description"] or "")
+    except Exception as e:
+        raise _llm_fail(e)
+
+
+class AddMeal(BaseModel):
+    item_id: int
+    day: int = Field(0, ge=0, le=6)
+    type: str = "lunch"
+
+
+@app.post("/api/mealplan/add")
+def add_to_plan(b: AddMeal, user: dict = User):
+    """Add a menu dish to the saved plan (creates a one-day plan if there is none)."""
+    items = approved_menu()["items"]
+    it = next((i for i in items if i["id"] == b.item_id), None)
+    if not it:
+        raise HTTPException(404, "Dish not found.")
+    meal = {"type": b.type if b.type in ("breakfast", "lunch", "dinner", "snack") else "lunch", "name": it["name"],
+            "price": it["price"], "ingredients": [], "portion": "1 serving", "kcal": it["calories"],
+            "protein_g": it["protein"], "carbs_g": it["carbs"], "fat_g": it["fat"], "alternatives": []}
+    with db() as c:
+        row = c.execute("SELECT plan FROM meal_plans WHERE user_id=?", (user["id"],)).fetchone()
+        plan = json.loads(row["plan"]) if row else {"days": [], "notes": "", "budget": None}
+        while len(plan["days"]) <= b.day:
+            plan["days"].append({"day": len(plan["days"]) + 1, "meals": []})
+        plan["days"][b.day]["meals"].append(meal)
+        plan = _finalize(plan, items, plan.get("budget"))
+        c.execute("INSERT INTO meal_plans(user_id,plan,updated) VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET plan=excluded.plan,updated=excluded.updated",
+                  (user["id"], json.dumps(plan), int(time.time())))
+    return {"plan": plan}
 
 
 # ------------------------------------------------------------------ frontend

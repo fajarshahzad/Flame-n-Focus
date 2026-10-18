@@ -32,10 +32,12 @@ const IC = {
   send: "M22 2L11 13 M22 2l-7 20-4-9-9-4z",
   copy: "M20 9h-9a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2z M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1",
   refresh: "M23 4v6h-6 M1 20v-6h6 M3.51 9a9 9 0 0 1 14.85-3.36L23 10 M1 14l4.64 4.36A9 9 0 0 0 20.49 15",
+  clock: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M12 6v6l4 2",
+  heart: "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z",
   edit: "M12 20h9 M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z",
 };
 const ico = n => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
-const LOGO = `<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5a1f"/><stop offset="1" stop-color="#ffb020"/></linearGradient></defs><path fill="url(#lg)" d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z"/></svg>`;
+const LOGO = `<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9AA64B"/><stop offset="1" stop-color="#ECEFE4"/></linearGradient></defs><path fill="url(#lg)" d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z"/></svg>`;
 
 /* ------------------------------------------------------------------ helpers */
 async function api(path, { method = "GET", body, form } = {}) {
@@ -124,7 +126,7 @@ document.addEventListener("click", e => {
 const NAV = [
   ["home", "Home", "home"], ["team", "Team lunch", "users"], ["menu", "Menu", "menu"],
   ["nutrition", "Nutrition", "activity"], ["plan", "Meal plan", "calendar"], ["chat", "Ask Flame", "chat"],
-  ["recipes", "Recipes", "search"], ["profile", "Profile", "user"], ["chef", "Chef console", "chef"],
+  ["recipes", "Recipes", "search"], ["focus", "Focus", "clock"], ["profile", "Profile", "user"], ["chef", "Chef console", "chef"],
 ];
 
 function shell(active) {
@@ -155,34 +157,41 @@ async function route() {
     try { S.user = await api("/auth/me"); } catch { S.user = null; }
   }
   $$(".overlay").forEach(o => o.remove());
-  if (!S.user) return renderAuth();
+  if (!S.user) {
+    const h = location.hash;
+    if (h.startsWith("#/login") || h.startsWith("#/signup")) return renderAuth(h.startsWith("#/signup") ? "signup" : "login");
+    return renderLanding();
+  }
   const [, page = "home", arg] = location.hash.split("/");
   const key = VIEWS[page] && (page !== "chef" || S.user.role === "chef") ? page : "home";
   shell(key);
   const view = $("#view");
+  view.dataset.page = key;
   try { await VIEWS[key](view, arg); }
-  catch (e) { view.innerHTML = `<div class="card">${empty("⚠️", e.message)}</div>`; }
+  catch (e) { view.innerHTML = `<div class="card">${empty("", e.message)}</div>`; }
   window.scrollTo(0, 0);
 }
 window.addEventListener("hashchange", route);
 
 /* ------------------------------------------------------------------ auth screen */
-function renderAuth() {
-  let mode = "login", role = "member";
+function renderAuth(initial = "login") {
+  let mode = initial, role = "member";
   const keep = {};
   const draw = () => {
     ["nm", "em", "pw", "cc"].forEach(id => { const e = $("#" + id); if (e) keep[id] = e.value; });
     $("#app").innerHTML = `
     <div class="auth">
       <section class="hero">
-        <div class="brand">${LOGO}<span>Flame-n-Focus</span></div>
+        <img class="hero-photo" src="/static/img/steak.jpg" alt="">
+        <div class="hero-spices"><img src="/static/img/spices1.png" alt=""><img src="/static/img/spices2.png" alt=""><img src="/static/img/spices3.png" alt=""></div>
+        <a class="brand" href="#/" style="color:inherit">${LOGO}<span>Flame-n-Focus</span></a>
         <div>
-          <h1>Lunch that fits <span style="color:#ffd9b0">everyone</span> on the team.</h1>
-          <p class="lead">One message each, one smart order, everyone back at their desks on time. Powered by open-source Gemma 4.</p>
+          <h1>Lunch that fits <span>everyone</span> on the team.</h1>
+          <p class="lead">One message each, one smart order, everyone back at their desks on time.</p>
           <div class="feats">
-            <div><span>👥</span><div><b>Team or separate</b><span class="small">Eat the same thing or each choose your own.</span></div></div>
-            <div><span>👨‍🍳</span><div><b>Add your own dish</b><span class="small">Want something off-menu? AI prices it and adds it instantly.</span></div></div>
-            <div><span>🥗</span><div><b>Health-aware</b><span class="small">Allergies and goals are respected automatically.</span></div></div>
+            <div><span></span><div><b>Team or separate</b><span class="small">Eat the same thing or each choose your own.</span></div></div>
+            <div><span></span><div><b>Add your own dish</b><span class="small">Want something off-menu? AI prices it and adds it instantly.</span></div></div>
+            <div><span></span><div><b>Health-aware</b><span class="small">Allergies and goals are respected automatically.</span></div></div>
           </div>
         </div>
         <p class="small" style="opacity:.7">Built at Hacktoberfest Hack Day Lahore</p>
@@ -227,23 +236,52 @@ function ring(value, target, label) {
   return `<div class="ring"><svg width="150" height="150" viewBox="0 0 150 150">
     <circle cx="75" cy="75" r="${R}" fill="none" stroke="var(--line)" stroke-width="12"/>
     <circle cx="75" cy="75" r="${R}" fill="none" stroke="${over ? "var(--bad)" : "url(#rg)"}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}"/>
-    <defs><linearGradient id="rg"><stop offset="0" stop-color="#ff5a1f"/><stop offset="1" stop-color="#ffb020"/></linearGradient></defs></svg>
+    <defs><linearGradient id="rg"><stop offset="0" stop-color="#5E6600"/><stop offset="1" stop-color="#233000"/></linearGradient></defs></svg>
     <div class="c"><div class="stat" style="font-size:1.7rem">${value}</div><div class="small muted">${label}</div></div></div>`;
 }
 function macroBar(p, c, f) {
   const t = (p * 4 + c * 4 + f * 9) || 1;
   return `<div class="macros" title="Protein / Carbs / Fat"><i style="width:${p * 4 / t * 100}%"></i><i style="width:${c * 4 / t * 100}%"></i><i style="width:${f * 9 / t * 100}%"></i></div>
-    <div class="legend"><span><i class="dot" style="background:#2f6fed"></i>P ${p}g</span><span><i class="dot" style="background:#ffb020"></i>C ${c}g</span><span><i class="dot" style="background:#ff5a1f"></i>F ${f}g</span></div>`;
+    <div class="legend"><span><i class="dot" style="background:#233000"></i>P ${p}g</span><span><i class="dot" style="background:#5E6600"></i>C ${c}g</span><span><i class="dot" style="background:#9AA64B"></i>F ${f}g</span></div>`;
 }
+const ALLERGEN_SYN = { nuts: ["nut", "almond", "cashew", "peanut", "walnut", "pistachio"], dairy: ["milk", "lactose", "cheese", "dairy"],
+  gluten: ["wheat", "gluten", "celiac", "coeliac"], seafood: ["fish", "shrimp", "prawn", "shellfish", "seafood"], egg: ["egg"] };
+function dishWarnings(i) {
+  const p = S.profile; if (!p) return [];
+  const out = [];
+  for (const a of i.allergens || []) {
+    const words = [a, ...(ALLERGEN_SYN[a] || [])];
+    if ((p.allergies || []).some(x => words.some(w => x.includes(w)))) out.push(`Contains ${a} (your allergy)`);
+  }
+  for (const d of p.dislikes || []) if (d && i.name.toLowerCase().includes(d)) out.push(`Contains ${d} (disliked)`);
+  return out;
+}
+const DISH_IMGS = ["salad", "plate", "drinks", "soup", "pear", "asparagus", "steak"];
+const DISH_RULES = [
+  [/coffee|tea|juice|drink|shake|lassi|soda|lemonade|mojito/i, ["drinks"]],
+  [/brownie|cake|dessert|pastry|sweet|ice cream|pudding|halwa|kheer/i, ["pear"]],
+  [/soup|karahi|curry|daal|dal |biryani|rice|chawal|bowl|stew|haleem|nihari/i, ["soup"]],
+  [/salad|wrap|veg|roll|paneer|healthy|oats|yogurt|fruit|chana/i, ["salad", "asparagus"]],
+  [/burger|steak|sandwich|beef|chicken|tikka|platter|grill|zinger|bbq|kebab|fries|egg|omelet|paratha|roti/i, ["plate", "steak"]],
+];
+const dishImg = n => {
+  const name = String(n), h = [...name].reduce((a, c) => a + c.charCodeAt(0), 0);
+  for (const [re, imgs] of DISH_RULES) if (re.test(name)) return imgs[h % imgs.length];
+  return DISH_IMGS[h % DISH_IMGS.length];
+};
 function dishCard(i, extra = "") {
-  const spice = "🌶".repeat(i.spice || 0);
-  return `<article class="card dish">
+  const spice = i.spice ? `Spice ${i.spice}/3` : "";
+  const warn = dishWarnings(i).map(w => `<span class="chip bad"> ${esc(w)}</span>`).join("");
+  const fav = S.favs && S.favs.has(i.id);
+  return `<article class="card dish" data-id="${i.id}" tabindex="0" aria-label="${esc(i.name)}, view details">
+    <div class="dish-media"><img class="dish-img" src="/static/img/${dishImg(i.name)}.jpg" alt="" loading="lazy">
+      <button class="fav ${fav ? "on" : ""}" data-fav="${i.id}" aria-pressed="${!!fav}" aria-label="${fav ? "Remove from" : "Save to"} favourites" type="button">${ico("heart")}</button></div>
     <div class="top"><div><h3>${esc(i.name)}</h3>${i.description ? `<p class="small muted">${esc(i.description)}</p>` : ""}</div><div class="price">${cur()} ${i.price}</div></div>
-    <div class="chips"><span class="chip">🔥 ${i.calories} kcal</span><span class="chip">⏱ ${i.prep_min} min</span>${spice ? `<span class="chip">${spice}</span>` : ""}
+    <div class="chips"><span class="chip"> ${i.calories} kcal</span><span class="chip"> ${i.prep_min} min</span>${spice ? `<span class="chip">${spice}</span>` : ""}
       ${i.source === "custom" ? '<span class="chip info">Custom · AI-estimated</span>' : ""}</div>
     ${macroBar(i.protein, i.carbs, i.fat)}
-    <div class="chips">${(i.tags || []).map(t => `<span class="chip">${esc(t)}</span>`).join("")}${(i.allergens || []).map(a => `<span class="chip warn">⚠ ${esc(a)}</span>`).join("")}</div>
-    ${i.chef_note ? `<p class="small muted">ℹ️ ${esc(i.chef_note)}</p>` : ""}${extra}</article>`;
+    <div class="chips">${warn}${(i.tags || []).map(t => `<span class="chip">${esc(t)}</span>`).join("")}${(i.allergens || []).map(a => `<span class="chip warn">contains ${esc(a)}</span>`).join("")}</div>
+    ${i.chef_note ? `<p class="small muted"> ${esc(i.chef_note)}</p>` : ""}${extra}</article>`;
 }
 function itemForm(it = {}) {
   const v = (k, d = "") => esc(it[k] ?? d);
@@ -281,17 +319,17 @@ VIEWS.home = async view => {
   const hi = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   view.innerHTML = `
     <div class="page-head"><div><h1>${hi}, <span class="grad-text">${esc(S.user.name.split(" ")[0])}</span></h1><p class="muted">What are we eating today?</p></div>
-      <span class="chip ${st.backend === "offline-fallback" ? "warn" : "ok"}">${st.backend === "offline-fallback" ? "AI offline: basic mode" : "AI: Gemma 4 · " + esc(st.backend)}</span></div>
+      </div>
     <div class="grid g3" style="margin-bottom:16px">
-      <a class="card flat" href="#/team"><h3>👥 Plan a team lunch</h3><p class="muted small">Create a team, share the code, eat together or separately.</p></a>
-      <a class="card flat" href="#/menu"><h3>📋 Browse or add a dish</h3><p class="muted small">See today's menu, or add a dish of your own.</p></a>
-      <a class="card flat" href="#/nutrition"><h3>📸 Scan your meal</h3><p class="muted small">Photo or voice to calories and macros in seconds.</p></a>
+      <a class="card flat tile" href="#/team"><img src="/static/img/soup.jpg" alt=""><div><h3> Plan a team lunch</h3><p class="muted small">Create a team, share the code, eat together or separately.</p></div></a>
+      <a class="card flat tile" href="#/menu"><img src="/static/img/salad.jpg" alt=""><div><h3> Browse or add a dish</h3><p class="muted small">See today's menu, or add a dish of your own.</p></div></a>
+      <a class="card flat tile" href="#/nutrition"><img src="/static/img/asparagus.jpg" alt=""><div><h3> Scan your meal</h3><p class="muted small">Photo or voice to calories and macros in seconds.</p></div></a>
     </div>
     <div class="grid g2">
       <div class="card"><h2>Today</h2><div class="row" style="gap:24px">${ring(today.kcal, logs.target, "of " + logs.target + " kcal")}
         <div class="grow">${macroBar(today.protein, today.carbs, today.fat)}<p class="small muted" style="margin-top:10px">${today.kcal ? "" : "Nothing logged yet. "}<a href="#/nutrition">Log a meal →</a></p></div></div></div>
       <div class="card"><div class="ch"><h2>Your teams</h2><a href="#/team" class="small">Manage →</a></div>
-        ${teams.teams.length ? `<div class="list">${teams.teams.map(t => `<a class="it" href="#/team/${t.code}"><div><b>${esc(t.name)}</b><div class="small muted">${t.members} member${t.members > 1 ? "s" : ""}</div></div><span class="chip">${esc(t.code)}</span></a>`).join("")}</div>` : empty("👋", "No teams yet. Create one or join with a code.")}</div>
+        ${teams.teams.length ? `<div class="list">${teams.teams.map(t => `<a class="it" href="#/team/${t.code}"><div><b>${esc(t.name)}</b><div class="small muted">${t.members} member${t.members > 1 ? "s" : ""}</div></div><span class="chip">${esc(t.code)}</span></a>`).join("")}</div>` : empty("", "No teams yet. Create one or join with a code.")}</div>
     </div>`;
 };
 
@@ -300,6 +338,7 @@ VIEWS.profile = async view => {
   const p = await api("/profile");
   const DIETS = ["halal", "vegetarian", "vegan", "healthy"];
   let allergies = [...p.allergies];
+  let dislikes = [...(p.dislikes || [])];
   const diet = new Set(p.diet);
   view.innerHTML = `
   <div class="page-head"><div><h1>Your profile</h1><p class="muted">Used to personalise suggestions. Never shown to teammates.</p></div></div>
@@ -317,74 +356,35 @@ VIEWS.profile = async view => {
       <div class="field"><label class="f">Daily calorie target</label><input id="kcal" type="number" min="800" max="6000" value="${p.kcal_target}"></div>
       <div class="field"><label class="f">Dietary preferences</label><div class="chips" id="diets">${DIETS.map(d => `<span class="chip btnlike ${diet.has(d) ? "on" : ""}" data-d="${d}" role="button" tabindex="0">${d}</span>`).join("")}</div></div>
       <div class="field"><label class="f">Allergies (type and press Enter)</label><div class="chips" id="alg" style="margin-bottom:8px"></div><input id="algin" placeholder="e.g. peanuts, shellfish, milk"></div>
+      <div class="field"><label class="f">Disliked ingredients (type and press Enter)</label><div class="chips" id="dis" style="margin-bottom:8px"></div><input id="disin" placeholder="e.g. mushrooms, coriander"></div>
+      <div class="field"><label class="f">Budget per meal (Rs, optional)</label><input id="bud" type="number" min="0" placeholder="e.g. 800" value="${p.budget ?? ""}"></div>
       <div class="field"><label class="f">Health conditions you want us to consider (optional)</label><textarea id="cond" maxlength="500" placeholder="e.g. type 2 diabetes, high blood pressure">${esc(p.conditions)}</textarea></div>
       <p class="msg info small">We give general food information only, not medical advice. Talk to a doctor or dietitian about health conditions.</p>
       <button class="btn" id="save">Save profile</button>
     </div>
     <div>
-      <div class="card"><h2>Voice input language</h2><p class="small muted" style="margin-bottom:10px">Used by the 🎤 buttons. Support depends on your browser.</p>
+      <div class="card"><h2>Voice input language</h2><p class="small muted" style="margin-bottom:10px">Used by the  buttons. Support depends on your browser.</p>
         <select id="vl">${[["en-US", "English"], ["ur-PK", "اردو (Urdu)"], ["en-GB", "English (UK)"]].map(([k, l]) => `<option value="${k}" ${store.get("ff_voice") === k ? "selected" : ""}>${l}</option>`).join("")}</select></div>
       <div class="card"><h2>Account & privacy</h2>
         <p class="small muted" style="margin-bottom:12px">${esc(S.user.email)} · ${S.user.role === "chef" ? "Chef" : "Member"}. Passwords are hashed with scrypt. Your health data is only used to filter and explain your own suggestions.</p>
         <button class="btn danger sm" id="del">Delete my account and all data</button></div>
     </div>
   </div>`;
-  const drawAlg = () => { $("#alg").innerHTML = allergies.map((a, i) => `<span class="chip btnlike" data-a="${i}" title="Remove">${esc(a)} ✕</span>`).join("") || '<span class="small muted">None added</span>'; $$("[data-a]").forEach(c => c.onclick = () => { allergies.splice(+c.dataset.a, 1); drawAlg(); }); };
+  const drawAlg = () => { $("#alg").innerHTML = allergies.map((a, i) => `<span class="chip btnlike" data-a="${i}" title="Remove">${esc(a)} ×</span>`).join("") || '<span class="small muted">None added</span>'; $$("[data-a]").forEach(c => c.onclick = () => { allergies.splice(+c.dataset.a, 1); drawAlg(); }); };
   drawAlg();
   $("#algin").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); const v = e.target.value.trim().toLowerCase(); if (v && !allergies.includes(v)) allergies.push(v); e.target.value = ""; drawAlg(); } };
+  const drawDis = () => { $("#dis").innerHTML = dislikes.map((a, i) => `<span class="chip btnlike" data-x="${i}" title="Remove">${esc(a)} ×</span>`).join("") || '<span class="small muted">None added</span>'; $$("[data-x]", $("#dis")).forEach(c => c.onclick = () => { dislikes.splice(+c.dataset.x, 1); drawDis(); }); };
+  drawDis();
+  $("#disin").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); const v = e.target.value.trim().toLowerCase(); if (v && !dislikes.includes(v)) dislikes.push(v); e.target.value = ""; drawDis(); } };
   $$("[data-d]").forEach(c => { const t = () => { const d = c.dataset.d; diet.has(d) ? diet.delete(d) : diet.add(d); c.classList.toggle("on"); }; c.onclick = t; c.onkeydown = e => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), t()); });
   $("#vl").onchange = e => { store.set("ff_voice", e.target.value); toast("Voice language saved", "ok"); };
   $("#save").onclick = e => busy(e.target, "Saving…", async () => {
     const pending = $("#algin").value.trim().toLowerCase(); if (pending && !allergies.includes(pending)) { allergies.push(pending); $("#algin").value = ""; drawAlg(); }
     await api("/profile", { method: "PUT", body: { age: $("#age").value ? num($("#age").value) : null, height_cm: $("#h").value ? num($("#h").value) : null, weight_kg: $("#w").value ? num($("#w").value) : null,
-      activity: $("#act").value, goal: $("#goal").value, kcal_target: num($("#kcal").value, 2000), diet: [...diet], allergies, conditions: $("#cond").value } });
+      activity: $("#act").value, goal: $("#goal").value, kcal_target: num($("#kcal").value, 2000), diet: [...diet], allergies, dislikes, budget: $("#bud").value ? num($("#bud").value) : null, conditions: $("#cond").value } });
     toast("Profile saved", "ok");
   });
   $("#del").onclick = async () => { if (!confirm("Delete your account and all your data? This cannot be undone.")) return; await api("/account", { method: "DELETE" }); store.set("ff_token", null); S.user = null; location.hash = ""; route(); };
-};
-
-/* ------------------------------------------------------------------ menu */
-VIEWS.menu = async view => {
-  const [menu, reqs] = await Promise.all([api("/menu"), api("/menu/requests")]);
-  let q = "", maxCal = "", diet = "", free = new Set();
-  const draw = () => {
-    const items = menu.items.filter(i =>
-      (!q || (i.name + " " + i.tags.join(" ")).toLowerCase().includes(q.toLowerCase())) &&
-      (!maxCal || i.calories <= +maxCal) && (!diet || i.tags.includes(diet)) && ![...free].some(a => i.allergens.includes(a)));
-    $("#dishes").innerHTML = items.length ? items.map(i => dishCard(i)).join("") : `<div class="card" style="grid-column:1/-1">${empty("🔍", "No dishes match. Try fewer filters, or request a new dish.")}</div>`;
-  };
-  view.innerHTML = `
-  <div class="page-head"><div><h1>Menu</h1><p class="muted">${menu.items.length} dishes · Want something else? Add your own dish.</p></div>
-    <button class="btn" id="suggest">${ico("plus")} Suggest a dish</button></div>
-  <div class="card"><div class="row">
-    <div class="grow"><label class="f">Search</label><div class="with-mic"><input id="q" placeholder="burger, healthy, halal…">${mic("#q")}</div></div>
-    <div style="width:130px"><label class="f">Max kcal</label><input id="mc" type="number" min="0" placeholder="any"></div>
-    <div style="width:160px"><label class="f">Diet</label><select id="df"><option value="">Any</option>${["halal", "vegetarian", "healthy", "chicken", "beef"].map(d => `<option>${d}</option>`).join("")}</select></div>
-  </div><div class="chips" style="margin-top:12px"><span class="small muted" style="align-self:center">Free of:</span>${["gluten", "dairy", "egg", "nuts", "seafood"].map(a => `<span class="chip btnlike" data-f="${a}" role="button" tabindex="0">${a}</span>`).join("")}</div></div>
-  <div class="grid auto" id="dishes"></div>
-  <div class="card" style="margin-top:20px"><h2>Dishes you added</h2><div id="mine"></div></div>`;
-  draw();
-  $("#q").oninput = e => { q = e.target.value; draw(); };
-  $("#mc").oninput = e => { maxCal = e.target.value; draw(); };
-  $("#df").onchange = e => { diet = e.target.value; draw(); };
-  $$("[data-f]").forEach(c => c.onclick = () => { const a = c.dataset.f; free.has(a) ? free.delete(a) : free.add(a); c.classList.toggle("on"); draw(); });
-  const mine = () => $("#mine").innerHTML = reqs.requests.length ? `<div class="list">${reqs.requests.map(r => `
-    <div class="it"><div><b>${esc(r.name)}</b> <span class="badge ${r.status}">${r.status}</span>
-      <div class="small muted">${esc(r.description || "")}${r.status === "approved" ? ` · ${cur()} ${r.price} · ${r.calories} kcal` : ""}</div>
-      ${r.chef_note ? `<div class="small">ℹ️ ${esc(r.chef_note)}</div>` : ""}</div></div>`).join("")}</div>` : '<p class="muted small">You have not added any dishes yet.</p>';
-  mine();
-  $("#suggest").onclick = () => modal(`
-    <h2 style="margin-bottom:6px">Suggest a dish</h2><p class="muted small" style="margin-bottom:16px">AI estimates the price, calories and allergens and adds the dish to the menu straight away.</p>
-    <div class="field"><label class="f">What would you like?</label><div class="with-mic"><input id="rn" maxlength="80" placeholder="e.g. Daal chawal bowl">${mic("#rn")}</div></div>
-    <div class="field"><label class="f">Details (optional)</label><textarea id="rd" maxlength="400" placeholder="Ingredients, spice level, portion, dietary needs…"></textarea></div>
-    <div class="row" style="justify-content:flex-end"><button class="btn ghost" data-close>Cancel</button><button class="btn" id="rs">Add to menu</button></div>`,
-  (m, close) => {
-    $("[data-close]", m).onclick = close;
-    $("#rs", m).onclick = e => busy(e.target, "Sending…", async () => {
-      const r = await api("/menu/requests", { method: "POST", body: { name: $("#rn", m).value, description: $("#rd", m).value } });
-      reqs.requests.unshift(r); menu.items.push(r); mine(); draw(); close(); toast("Added to the menu", "ok");
-    });
-  });
 };
 
 /* ------------------------------------------------------------------ chef console */
@@ -408,7 +408,7 @@ VIEWS.chef = async view => {
           <p class="small muted">Requested by ${esc(r.requester || "unknown")}${r.description ? ` · “${esc(r.description)}”` : ""}</p></div></div>
           <div style="margin-top:12px">${itemForm(r)}</div>
           <div class="row"><button class="btn ok sm" data-ap>${ico("check")} Approve</button><button class="btn danger sm" data-rj>${ico("x")} Reject</button></div></div>`).join("")
-        : `<div class="card">${empty("🍽", "No requests yet.")}</div>`;
+        : `<div class="card">${empty("", "No requests yet.")}</div>`;
       $$("[data-id]", pane).forEach(card => {
         const id = card.dataset.id;
         const send = (approve, btn) => busy(btn, "Saving…", async () => {
@@ -436,7 +436,7 @@ VIEWS.chef = async view => {
       $$("[data-e]", pane).forEach(b => b.onclick = () => edit(menu.items.find(i => i.id == b.dataset.e)));
       $$("[data-x]", pane).forEach(b => b.onclick = async () => { if (confirm("Remove this dish from the menu?")) { await api(`/menu/items/${b.dataset.x}`, { method: "DELETE" }); draw(); } });
     } else {
-      pane.innerHTML = `<div class="card"><h2>Scan a menu photo</h2><p class="muted small" style="margin-bottom:12px">Gemma 4 reads the menu (English or Urdu). Review the draft, then import.</p>
+      pane.innerHTML = `<div class="card"><h2>Scan a menu photo</h2><p class="muted small" style="margin-bottom:12px">We read the menu (English or Urdu). Review the draft, then import.</p>
         <div class="row"><input type="file" id="mf" accept="image/*" class="grow"><button class="btn" id="go">${ico("camera")} Scan</button></div><div id="draft" style="margin-top:16px"></div></div>`;
       $("#go", pane).onclick = e => busy(e.currentTarget, "Reading menu…", async () => {
         const f = $("#mf", pane).files[0]; if (!f) throw new Error("Choose a menu photo first.");
