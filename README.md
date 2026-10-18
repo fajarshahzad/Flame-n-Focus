@@ -10,6 +10,10 @@ Built at Hacktoberfest Hack Day Lahore. Licensed under Apache-2.0. The bundled m
 
 The colours, typography and photography follow the exported frames of that design. Images in `web/img/` are cropped from the export.
 
+## Demo video
+
+[Watch the demo video](demo/demo.mp4) (opens in GitHub's video player).
+
 ## User experience
 
 Visitors arrive at the sign-in page, where they can also create an account, then arrive at Home. The primary pages are available from the sidebar. Home summarizes teams and nutrition activity; the Chef Console appears only for chef accounts.
