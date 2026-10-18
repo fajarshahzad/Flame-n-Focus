@@ -344,3 +344,29 @@ label.f{white-space:nowrap}
 @keyframes ldFade{to{opacity:1}}
 @keyframes ldOut{to{opacity:0;visibility:hidden}}
 @media(prefers-reduced-motion:reduce){.loader,.ld-bowl,.ld-rim,.ld-flame,.ld-name{animation-duration:.01s;animation-delay:0s}.loader{animation-delay:1s}.ld-flame{animation:ldRise .01s forwards}}
+
+/* ================= horizontal top navbar (desktop); page content margins unchanged ================= */
+@media(min-width:901px){
+  :root{--mx:max(clamp(16px,3vw,48px),calc((100vw - 1400px)/2))}
+  .shell{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .side{position:sticky;top:0;height:auto;z-index:30;flex-direction:row;align-items:center;flex-wrap:wrap;gap:6px 22px;padding:12px var(--mx);border-right:0}
+  .side .brand{padding:0;margin-right:6px;font-size:1.05rem}
+  .side .grow{flex:1;min-width:0}
+  .nav{display:flex;flex-wrap:wrap;gap:2px 4px;order:2}
+  .side .grow{order:3}
+  .me{order:4;border:0;padding:0;gap:10px}
+  .nav a{padding:10px 12px;font-size:.98rem;gap:0}
+  .nav a svg{display:none}
+  .nav a.on{box-shadow:inset 0 -3px 0 #fff}
+  .me .muted{display:none}
+  main{max-width:none;padding-left:var(--mx);padding-right:var(--mx)}
+  .page-head{margin-left:calc(-1 * var(--mx));margin-right:calc(-1 * var(--mx));padding-left:var(--mx);padding-right:var(--mx)}
+}
+
+@media(min-width:901px) and (max-width:1250px){
+  .side .brand{order:1}
+  .me{order:2;margin-left:auto}
+  .nav{order:3;width:100%}
+  .side .grow{display:none}
+}
+@media(max-width:900px){.nav a.on{box-shadow:inset 0 3px 0 #fff}}
