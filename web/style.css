@@ -370,3 +370,17 @@ input[type=checkbox]{border:0}
 .nav a.on{background:transparent;border:0;color:#fff;box-shadow:inset 3px 0 0 #D9E3A0;font-weight:900}
 .me{border:0;border-top:1px solid rgba(255,255,255,.4);padding:14px 4px 4px}
 .modal{border:0}
+
+/* ================= alignment + sidebar contrast ================= */
+.row{align-items:flex-end}
+label.f{white-space:nowrap}
+.side{background:var(--sage);color:var(--ink);border-right:2px solid var(--ink)}
+.side .brand{color:var(--ink)}
+.nav a{color:#3a3a3a}
+.nav a:hover{color:var(--ink)}
+.nav a.on{color:var(--ink);box-shadow:inset 4px 0 0 var(--olive);font-weight:900}
+.me{border-top:1px solid var(--ink)}
+.me .muted{color:var(--grey)}
+.side .icon-btn{color:var(--ink)}
+.side .icon-btn:hover{color:var(--olive)}
+@media(max-width:900px){.side{border-right:0;border-top:2px solid var(--ink)}}

@@ -188,7 +188,7 @@ VIEWS.plan = async view => {
     <div class="page-head"><div><h1>Meal plan</h1><p class="muted">Built around your goal, diet and allergies. Swap any meal.</p></div></div>
     <div class="card"><div class="row">
       <div style="width:150px"><label class="f">Plan length</label><select id="pd">${[1, 3, 7].map(n => `<option value="${n}" ${n === days ? "selected" : ""}>${n} day${n > 1 ? "s" : ""}</option>`).join("")}</select></div>
-      <div style="width:190px"><label class="f">Total budget, all days (Rs)</label><input id="pb" type="number" min="0" placeholder="optional" value="${plan && plan.budget ? plan.budget : ""}"></div>
+      <div style="width:190px"><label class="f">Budget, all days (Rs)</label><input id="pb" type="number" min="0" placeholder="optional" value="${plan && plan.budget ? plan.budget : ""}"></div>
       <div class="grow"><label class="f">Wishes (optional)</label><div class="with-mic"><input id="pw" maxlength="300" placeholder="e.g. high protein, no fried food, budget friendly">${mic("#pw")}</div></div>
       <div style="align-self:end"><button class="btn" id="gp"> ${plan ? "Regenerate" : "Generate"}</button></div></div></div>
     <div id="pl">${plan ? "" : `<div class="card">${empty("", "No plan yet. Generate one above.")}</div>`}</div>`;
@@ -267,7 +267,7 @@ VIEWS.recipes = async view => {
   view.innerHTML = `
   <div class="page-head"><div><h1>Recipes</h1><p class="muted">Tell us what's in your kitchen. We'll suggest meals that fit your diet.</p></div></div>
   <div class="card"><div class="row"><div class="grow"><label class="f">Ingredients</label><div class="with-mic"><input id="ing" maxlength="200" placeholder="e.g. chicken, rice, yogurt, tomatoes">${mic("#ing")}</div></div>
-    <div style="width:140px"><label class="f">Max kcal / serving</label><input id="mk" type="number" min="100" placeholder="any"></div>
+    <div style="width:140px"><label class="f">Max kcal</label><input id="mk" type="number" min="100" placeholder="any"></div>
     <div style="align-self:end"><button class="btn" id="go">Find recipes</button></div></div></div>
   <div id="out"></div>`;
   $("#go").onclick = e => busy(e.target, "Cooking up ideas…", async () => {
