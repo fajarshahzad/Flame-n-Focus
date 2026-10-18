@@ -172,9 +172,31 @@ async function route() {
 }
 window.addEventListener("hashchange", route);
 
+/* ------------------------------------------------------------------ loader: a bowl appears and a flame rises out of it */
+function showLoader(loop = false) {
+  const el = document.createElement("div");
+  el.className = "loader" + (loop ? " loop" : "");
+  el.setAttribute("role", "status"); el.setAttribute("aria-label", "Loading");
+  el.innerHTML = `<div class="ld-wrap"><svg viewBox="0 0 200 200" aria-hidden="true">
+    <path class="ld-bowl" d="M40 146 Q100 222 160 146 Z"/>
+    <path class="ld-rim" d="M34 146 H166"/>
+    <g class="ld-flame"><path fill="#D9E3A0" d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z" transform="translate(40 58) scale(5)"/>
+      <path fill="#ECEFE4" d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z" transform="translate(70 98) scale(2.6)"/></g>
+  </svg><p class="ld-name">FLAME-N-FOCUS</p></div>`;
+  document.body.appendChild(el);
+  if (!loop) { el.onclick = () => el.remove(); setTimeout(() => el.remove(), 2900); }
+  return el;
+}
+function introLoader() {
+  try { if (sessionStorage.getItem("ff_intro")) return; sessionStorage.setItem("ff_intro", "1"); } catch {}
+  if ($(".loader")) return;
+  showLoader(false);
+}
+
 /* ------------------------------------------------------------------ auth screen */
 function renderAuth(initial = "login") {
   let mode = initial, role = "member";
+  introLoader();
   const keep = {};
   const draw = () => {
     ["nm", "em", "pw", "cc"].forEach(id => { const e = $("#" + id); if (e) keep[id] = e.value; });
@@ -209,11 +231,11 @@ function renderAuth(initial = "login") {
       const err = $("#aerr"); err.classList.add("hidden");
       const body = { email: $("#em").value, password: $("#pw").value };
       if (mode === "signup") Object.assign(body, { name: $("#nm").value, role });
-      const btn = $("#asub"); btn.disabled = true;
+      const btn = $("#asub"); btn.disabled = true; const ld = showLoader(true);
       try {
         const d = await api(mode === "login" ? "/auth/login" : "/auth/signup", { method: "POST", body });
         store.set("ff_token", d.token); S.user = d.user; location.hash = "#/home"; route();
-      } catch (ex) { err.textContent = ex.message; err.classList.remove("hidden"); btn.disabled = false; }
+      } catch (ex) { err.textContent = ex.message; err.classList.remove("hidden"); btn.disabled = false; } finally { ld.remove(); }
     };
   };
   draw();
