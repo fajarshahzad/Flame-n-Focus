@@ -184,16 +184,7 @@ function renderAuth(initial = "login") {
         <img class="hero-photo" src="/static/img/steak.jpg" alt="">
         <div class="hero-spices"><img src="/static/img/spices1.png" alt=""><img src="/static/img/spices2.png" alt=""><img src="/static/img/spices3.png" alt=""></div>
         <a class="brand" href="#/" style="color:inherit">${LOGO}<span>Flame-n-Focus</span></a>
-        <div>
-          <h1>Lunch that fits <span>everyone</span> on the team.</h1>
-          <p class="lead">One message each, one smart order, everyone back at their desks on time.</p>
-          <div class="feats">
-            <div><span></span><div><b>Team or separate</b><span class="small">Eat the same thing or each choose your own.</span></div></div>
-            <div><span></span><div><b>Add your own dish</b><span class="small">Want something off-menu? AI prices it and adds it instantly.</span></div></div>
-            <div><span></span><div><b>Health-aware</b><span class="small">Allergies and goals are respected automatically.</span></div></div>
-          </div>
-        </div>
-        <p class="small" style="opacity:.7">Built at Hacktoberfest Hack Day Lahore</p>
+        <div class="hero-center"><h1>Lunch that fits everyone on the team.</h1></div>
       </section>
       <section class="auth-side"><div class="auth-card">
         <h2 style="font-size:1.6rem;margin-bottom:6px">${mode === "login" ? "Welcome back" : "Create your account"}</h2>

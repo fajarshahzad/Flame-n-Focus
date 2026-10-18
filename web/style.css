@@ -320,3 +320,11 @@ label.f{white-space:nowrap}
 .side .icon-btn{color:#fff}
 .side .icon-btn:hover{color:#E4EBB5}
 @media(max-width:900px){.side{border-top:0}}
+
+/* ================= sign-in hero: photo as a faded background, heading only ================= */
+.hero{justify-content:flex-start}
+.hero-center{margin:auto 0;position:relative;z-index:2}
+.hero-photo{inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:.32;z-index:0}
+.hero-spices{left:50%;right:auto;transform:translateX(-50%);bottom:6%;opacity:.6;z-index:1}
+.hero h1{max-width:9em;margin:0}
+@media(max-width:900px){.hero-photo{display:block}.hero{min-height:46vh}}
