@@ -384,3 +384,16 @@ label.f{white-space:nowrap}
 .side .icon-btn{color:var(--ink)}
 .side .icon-btn:hover{color:var(--olive)}
 @media(max-width:900px){.side{border-right:0;border-top:2px solid var(--ink)}}
+
+/* ================= sidebar in olive green (#5E6600) ================= */
+.side{background:var(--olive);color:#fff;border-right:0}
+.side .brand{color:#fff}
+.nav a{color:rgba(255,255,255,.84)}
+.nav a:hover{color:#fff}
+.nav a.on{color:#fff;box-shadow:inset 4px 0 0 #fff;font-weight:900}
+.me{border-top:1px solid rgba(255,255,255,.45)}
+.me .muted{color:rgba(255,255,255,.78)}
+.avatar{background:var(--green);border-color:#fff}
+.side .icon-btn{color:#fff}
+.side .icon-btn:hover{color:#E4EBB5}
+@media(max-width:900px){.side{border-top:0}}
