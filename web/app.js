@@ -159,8 +159,7 @@ async function route() {
   $$(".overlay").forEach(o => o.remove());
   if (!S.user) {
     const h = location.hash;
-    if (h.startsWith("#/login") || h.startsWith("#/signup")) return renderAuth(h.startsWith("#/signup") ? "signup" : "login");
-    return renderLanding();
+    return renderAuth(h.startsWith("#/signup") ? "signup" : "login");
   }
   const [, page = "home", arg] = location.hash.split("/");
   const key = VIEWS[page] && (page !== "chef" || S.user.role === "chef") ? page : "home";

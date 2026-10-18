@@ -12,12 +12,11 @@ The colours, typography and photography follow the exported frames of that desig
 
 ## User experience
 
-Visitors first see a public landing page. They can sign in or create an account, then arrive at Home. The primary pages are available from the sidebar. Home summarizes teams and nutrition activity; the Chef Console appears only for chef accounts.
+Visitors arrive at the sign-in page, where they can also create an account, then arrive at Home. The primary pages are available from the sidebar. Home summarizes teams and nutrition activity; the Chef Console appears only for chef accounts.
 
 ```mermaid
 flowchart TD
-	Landing[Landing page] --> Auth[Log in or sign up]
-	Auth --> Home[Home]
+	Auth[Log in or sign up] --> Home[Home]
 	Home --> Team[Team Lunch]
 	Home --> Menu[Menu]
 	Home --> Nutrition[Nutrition]
@@ -46,7 +45,6 @@ flowchart TD
 
 | Page | Primary user task |
 | --- | --- |
-| Landing | Learn what the app does and start sign-up. |
 | Login / Sign up | Sign in or create a member account. New accounts cannot assign themselves the chef role. |
 | Home | Review teams and today's nutrition; navigate to the main tasks. |
 | Team Lunch | Create or join a team, submit a request, choose team or separate mode, and review orders, cost, and timing. |
@@ -118,7 +116,7 @@ The browser frontend is plain HTML, CSS, and JavaScript with no build step. Fast
 | `flame/profile.py` | Converts saved diet, allergy, dislike and budget settings into planning constraints. |
 | `flame/planner.py` | Filters and scores menu items; computes orders, batches, bill splits, feasts, timelines, and alerts. |
 | `flame/llm.py` | Gemini/Ollama integration, structured model tasks, and preference parsing fallback. |
-| `web/` | Landing page, app shell, styles, navigation, page views, and images. |
+| `web/` | Sign-in page, app shell, styles, navigation, page views, and images. |
 | `data/sample_menu.json` | Fictional starter menu. |
 | `skills/group-lunch-planner/SKILL.md` | Agent Skill describing the group-lunch workflow. |
 
